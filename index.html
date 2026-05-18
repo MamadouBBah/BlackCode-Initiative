@@ -1,0 +1,877 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The BlackCode Initiative | Offline AI Tutor</title>
+  <meta name="description" content="A portfolio case study for The BlackCode Initiative, a local, privacy-first AI tutoring architecture built around verified reasoning, source-grounded scaffolding, and offline data sovereignty." />
+  <style>
+    :root {
+      --ink: #0c0f12;
+      --ink-soft: #151b20;
+      --panel: #f7f3ea;
+      --paper: #fffaf0;
+      --line: rgba(12, 15, 18, 0.16);
+      --text: #1d252c;
+      --muted: #5e6a70;
+      --green: #2d7a58;
+      --green-dark: #164832;
+      --amber: #c88a1d;
+      --blue: #276d88;
+      --red: #a6473f;
+      --white: #ffffff;
+      --shadow: 0 24px 80px rgba(12, 15, 18, 0.18);
+      --radius: 8px;
+      --max: 1180px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(45, 122, 88, 0.16), transparent 28rem),
+        radial-gradient(circle at 90% 18%, rgba(200, 138, 29, 0.14), transparent 30rem),
+        linear-gradient(180deg, #101419 0%, #151a1f calc(100vh + 8rem), var(--panel) calc(100vh + 8rem), var(--panel) 100%);
+      line-height: 1.6;
+    }
+
+    a { color: inherit; }
+
+    .skip-link {
+      position: absolute;
+      left: 1rem;
+      top: -4rem;
+      background: var(--paper);
+      color: var(--ink);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius);
+      z-index: 20;
+    }
+
+    .skip-link:focus { top: 1rem; }
+
+    .shell {
+      width: min(var(--max), calc(100% - 2rem));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 0;
+      color: rgba(255, 255, 255, 0.88);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-decoration: none;
+    }
+
+    .mark {
+      width: 2.25rem;
+      height: 2.25rem;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+
+    .nav {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .nav a {
+      text-decoration: none;
+      padding: 0.55rem 0.75rem;
+      border-radius: 999px;
+      color: rgba(255, 255, 255, 0.76);
+      font-size: 0.92rem;
+    }
+
+    .nav a:hover,
+    .nav a:focus-visible {
+      color: var(--white);
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+    }
+
+    .hero {
+      min-height: calc(100vh - 4.5rem);
+      display: grid;
+      align-items: center;
+      padding: clamp(2rem, 5vw, 5rem) 0 4rem;
+      color: var(--white);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(22rem, 0.9fr);
+      gap: clamp(2rem, 5vw, 4.5rem);
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin: 0 0 1rem;
+      color: #b9d9c8;
+      font-size: 0.9rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 2.2rem;
+      height: 2px;
+      background: var(--green);
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      max-width: 12ch;
+      margin-bottom: 1.1rem;
+      font-size: clamp(3rem, 9vw, 6.8rem);
+      line-height: 0.92;
+      letter-spacing: 0;
+    }
+
+    .hero-copy {
+      max-width: 65ch;
+      color: rgba(255, 255, 255, 0.78);
+      font-size: clamp(1.05rem, 2vw, 1.22rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      margin-top: 2rem;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 2.9rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      text-decoration: none;
+      font-weight: 800;
+    }
+
+    .button.primary {
+      background: var(--paper);
+      color: var(--ink);
+    }
+
+    .button.secondary {
+      border-color: rgba(255, 255, 255, 0.22);
+      color: var(--white);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .system-panel {
+      background: rgba(255, 250, 240, 0.96);
+      color: var(--ink);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem;
+      background: var(--ink);
+      color: var(--white);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: #b9d9c8;
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .status::before {
+      content: "";
+      width: 0.65rem;
+      height: 0.65rem;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 0.35rem rgba(45, 122, 88, 0.22);
+    }
+
+    .panel-body { padding: 1rem; }
+
+    .matrix {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--white);
+    }
+
+    .cell {
+      min-height: 8.6rem;
+      padding: 1rem;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .cell:nth-child(2n) { border-right: 0; }
+    .cell:nth-last-child(-n+2) { border-bottom: 0; }
+
+    .cell b {
+      color: var(--green-dark);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .cell span {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.7rem;
+      margin-top: 0.8rem;
+    }
+
+    .metric {
+      padding: 0.85rem;
+      background: #edf6ef;
+      border-radius: var(--radius);
+      border: 1px solid rgba(45, 122, 88, 0.22);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 1.25rem;
+      line-height: 1.1;
+      color: var(--green-dark);
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    section {
+      padding: clamp(4rem, 8vw, 7rem) 0;
+    }
+
+    .section-head {
+      max-width: 760px;
+      margin-bottom: clamp(1.8rem, 4vw, 3rem);
+    }
+
+    .kicker {
+      margin-bottom: 0.7rem;
+      color: var(--green-dark);
+      font-size: 0.84rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+    }
+
+    h2 {
+      margin-bottom: 0.9rem;
+      color: var(--ink);
+      font-size: clamp(2rem, 5vw, 3.8rem);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: clamp(1rem, 2vw, 1.17rem);
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .feature-card,
+    .trial-card,
+    .shot-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 250, 240, 0.82);
+      box-shadow: 0 12px 40px rgba(12, 15, 18, 0.08);
+    }
+
+    .feature-card { padding: 1.25rem; }
+
+    .icon-box {
+      width: 2.55rem;
+      height: 2.55rem;
+      display: grid;
+      place-items: center;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      color: var(--white);
+      background: var(--ink);
+      font-weight: 900;
+    }
+
+    .feature-card:nth-child(2) .icon-box { background: var(--green-dark); }
+    .feature-card:nth-child(3) .icon-box { background: var(--blue); }
+
+    h3 {
+      margin-bottom: 0.55rem;
+      color: var(--ink);
+      font-size: 1.2rem;
+      line-height: 1.2;
+    }
+
+    .feature-card p,
+    .trial-card p,
+    .shot-card p { color: var(--muted); }
+
+    .architecture {
+      background: var(--ink);
+      color: var(--white);
+    }
+
+    .architecture h2 { color: var(--white); }
+    .architecture .lead { color: rgba(255, 255, 255, 0.72); }
+    .architecture .kicker { color: #b9d9c8; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      align-items: stretch;
+    }
+
+    .flow-step {
+      position: relative;
+      padding: 1rem;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      min-height: 12rem;
+    }
+
+    .flow-step::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -0.75rem;
+      width: 0.75rem;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.28);
+    }
+
+    .flow-step:last-child::after { display: none; }
+
+    .flow-step .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      margin-bottom: 0.85rem;
+      border-radius: 50%;
+      background: var(--green);
+      color: var(--white);
+      font-weight: 900;
+    }
+
+    .flow-step h3 { color: var(--white); }
+    .flow-step p { color: rgba(255, 255, 255, 0.68); }
+
+    .trials-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .trial-card { overflow: hidden; }
+
+    .trial-top {
+      min-height: 7rem;
+      padding: 1.1rem;
+      color: var(--white);
+      background: var(--ink);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .trial-card:nth-child(2) .trial-top { background: var(--blue); }
+    .trial-card:nth-child(3) .trial-top { background: var(--amber); }
+    .trial-card:nth-child(4) .trial-top { background: var(--green-dark); }
+
+    .trial-label {
+      font-size: 0.82rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.74;
+    }
+
+    .trial-card h3 { color: var(--white); margin-bottom: 0; }
+
+    .trial-body {
+      display: grid;
+      gap: 0.75rem;
+      padding: 1.1rem;
+    }
+
+    .tag {
+      display: inline-flex;
+      width: fit-content;
+      padding: 0.22rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(166, 71, 63, 0.1);
+      color: var(--red);
+      font-size: 0.78rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .tag.fix {
+      background: rgba(45, 122, 88, 0.12);
+      color: var(--green-dark);
+    }
+
+    .showcase {
+      background: #ebe4d7;
+    }
+
+    .screenshots {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 1rem;
+      align-items: stretch;
+    }
+
+    .shot-card { overflow: hidden; background: var(--paper); }
+
+    .shot-frame {
+      min-height: 22rem;
+      padding: 1rem;
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(135deg, rgba(12, 15, 18, 0.08) 25%, transparent 25%) 0 0 / 24px 24px,
+        linear-gradient(135deg, transparent 75%, rgba(12, 15, 18, 0.08) 75%) 0 0 / 24px 24px,
+        #f5efe3;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .shot-card.small .shot-frame { min-height: 10.5rem; }
+
+    .placeholder {
+      width: min(25rem, 100%);
+      border: 1px dashed rgba(12, 15, 18, 0.35);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      text-align: center;
+      color: var(--muted);
+      background: rgba(255, 250, 240, 0.72);
+      font-weight: 750;
+    }
+
+    .shot-copy { padding: 1rem; }
+    .shot-copy p { margin-bottom: 0; }
+
+    .stacked-shots {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .philosophy {
+      padding-bottom: clamp(5rem, 10vw, 8rem);
+    }
+
+    .quote-band {
+      display: grid;
+      grid-template-columns: 0.8fr 1.2fr;
+      gap: clamp(1.5rem, 4vw, 3rem);
+      align-items: center;
+      padding: clamp(1.5rem, 4vw, 3rem);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: var(--white);
+      box-shadow: var(--shadow);
+    }
+
+    .quote-band h2 { color: var(--white); margin-bottom: 0; }
+    .quote-band p { color: rgba(255, 255, 255, 0.76); font-size: 1.08rem; }
+
+    .footer {
+      padding: 2rem 0;
+      color: rgba(255, 255, 255, 0.72);
+      background: var(--ink);
+    }
+
+    .footer .shell {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .footer a {
+      color: var(--white);
+      text-decoration: none;
+      font-weight: 800;
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid,
+      .quote-band,
+      .screenshots {
+        grid-template-columns: 1fr;
+      }
+
+      .overview-grid,
+      .flow,
+      .trials-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .flow-step::after { display: none; }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        background:
+          radial-gradient(circle at 20% 0%, rgba(45, 122, 88, 0.16), transparent 22rem),
+          linear-gradient(180deg, #101419 0%, #151a1f calc(100vh + 10rem), var(--panel) calc(100vh + 10rem), var(--panel) 100%);
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .nav { justify-content: flex-start; }
+      .nav a { padding-left: 0; }
+
+      h1 { font-size: clamp(2.7rem, 18vw, 4.2rem); }
+
+      .overview-grid,
+      .flow,
+      .trials-grid,
+      .metrics,
+      .matrix {
+        grid-template-columns: 1fr;
+      }
+
+      .cell,
+      .cell:nth-child(2n),
+      .cell:nth-last-child(-n+2) {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .cell:last-child { border-bottom: 0; }
+      section { padding: 3.5rem 0; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="shell topbar" aria-label="Project page header">
+    <a class="brand" href="https://mamadoubbah.github.io/" aria-label="Back to Mamadou Bbah portfolio">
+      <span class="mark">BC</span>
+      <span>Portfolio Case Study</span>
+    </a>
+    <nav class="nav" aria-label="Page navigation">
+      <a href="#overview">Overview</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#trials">Trials</a>
+      <a href="#screenshots">Screenshots</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero shell" aria-labelledby="page-title">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">Offline AI Tutoring Architecture</p>
+          <h1 id="page-title">The BlackCode Initiative</h1>
+          <p class="hero-copy">A local, privacy-first educational framework designed to deliver personalized AI tutoring without handing student learning data to remote infrastructure. The project pairs source-grounded retrieval, persistent mastery tracking, and a verification-first logic matrix to keep instruction rigorous.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#overview">Read the case study</a>
+            <a class="button secondary" href="https://mamadoubbah.github.io/">Back to portfolio</a>
+          </div>
+        </div>
+
+        <aside class="system-panel" aria-label="System summary">
+          <div class="panel-head">
+            <strong>Dual-Process Cognitive Engine</strong>
+            <span class="status">Offline</span>
+          </div>
+          <div class="panel-body">
+            <div class="matrix" aria-label="Logic matrix axes">
+              <div class="cell">
+                <b>Literal</b>
+                <span>Token-grounded verification for factual and atomic tasks.</span>
+              </div>
+              <div class="cell">
+                <b>Interpretive</b>
+                <span>Conceptual and analogy-based reasoning for creative analysis.</span>
+              </div>
+              <div class="cell">
+                <b>Atomic</b>
+                <span>High-resolution operations such as indexing, counting, and exact extraction.</span>
+              </div>
+              <div class="cell">
+                <b>Holistic</b>
+                <span>Cross-source synthesis, contradiction mapping, and broader learning scaffolds.</span>
+              </div>
+            </div>
+            <div class="metrics" aria-label="Project principles">
+              <div class="metric"><strong>Local</strong><span>Runs offline</span></div>
+              <div class="metric"><strong>RAG</strong><span>Selected vault files</span></div>
+              <div class="metric"><strong>Ghist</strong><span>Mastery ledger</span></div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="overview" class="shell" aria-labelledby="overview-title">
+      <div class="section-head">
+        <p class="kicker">What it does</p>
+        <h2 id="overview-title">A tutoring system built around control, memory, and verification.</h2>
+        <p class="lead">BlackCode is not framed as a standard conversational chatbot. The report defines it as a dual-process engine: an automated background clerk maintains learning state while an instructional tutor responds through explicit verification rules.</p>
+      </div>
+
+      <div class="overview-grid">
+        <article class="feature-card">
+          <div class="icon-box">01</div>
+          <h3>Context-Targeted Knowledge Vault</h3>
+          <p>Students manually select text or PDF assets from an archived vault, giving them direct control over the AI tutor's active memory pool. Selected materials can be compiled into a structured dossier for comparison and contradiction mapping.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="icon-box">02</div>
+          <h3>Dynamic Knowledge Ledger</h3>
+          <p>The Ghist ledger preserves learning state across interactions. A background Janitor/Clerk analyzes sessions and updates a persistent profile that tracks recurring concepts through the Mastery Star System.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="icon-box">03</div>
+          <h3>Multi-Dimensional Logic Matrix</h3>
+          <p>Inbound student questions are categorized across Literal vs. Interpretive and Atomic vs. Holistic axes. The tutor changes its constraints depending on whether the task requires exact verification or conceptual exploration.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="architecture" class="architecture" aria-labelledby="architecture-title">
+      <div class="shell">
+        <div class="section-head">
+          <p class="kicker">How it reasons</p>
+          <h2 id="architecture-title">The architecture separates data truth from conceptual exploration.</h2>
+          <p class="lead">The report's central breakthrough is the move from one-off conditional rules toward pure axiomatic methodology: universal verification principles that keep factual work and interpretive work on separate logical planes.</p>
+        </div>
+
+        <div class="flow" aria-label="Architecture flow">
+          <article class="flow-step">
+            <span class="num">1</span>
+            <h3>User selects sources</h3>
+            <p>Students choose which vault documents become available to the tutor for the current learning task.</p>
+          </article>
+          <article class="flow-step">
+            <span class="num">2</span>
+            <h3>Dossier is assembled</h3>
+            <p>Selected text and PDF assets are compiled so the engine can compare ideas across multiple sources.</p>
+          </article>
+          <article class="flow-step">
+            <span class="num">3</span>
+            <h3>Intent is mapped</h3>
+            <p>The reasoning engine classifies the query as literal, interpretive, atomic, holistic, or a blend requiring contextual constraints.</p>
+          </article>
+          <article class="flow-step">
+            <span class="num">4</span>
+            <h3>Response is governed</h3>
+            <p>The tutor applies verification rules, Socratic guidance, and source awareness to avoid sycophancy and unsupported claims.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="trials" class="shell" aria-labelledby="trials-title">
+      <div class="section-head">
+        <p class="kicker">Engineering lessons</p>
+        <h2 id="trials-title">The project was shaped by stress tests, errors, and corrective protocols.</h2>
+        <p class="lead">The report is unusually strong because it documents failures directly. Each failure mode became a guardrail for the tutor's instructional behavior.</p>
+      </div>
+
+      <div class="trials-grid">
+        <article class="trial-card">
+          <div class="trial-top">
+            <span class="trial-label">Trial 1</span>
+            <h3>The Sycophancy Loop</h3>
+          </div>
+          <div class="trial-body">
+            <div><span class="tag">Error</span><p>Early iterations over-prioritized polite validation and sometimes built on flawed student premises.</p></div>
+            <div><span class="tag fix">Fix</span><p>A Skeptic-First Protocol directs the tutor to flag premise discrepancies politely and redirect students with Socratic guidance.</p></div>
+          </div>
+        </article>
+
+        <article class="trial-card">
+          <div class="trial-top">
+            <span class="trial-label">Trial 2</span>
+            <h3>The Metaphor-Fact Blur</h3>
+          </div>
+          <div class="trial-body">
+            <div><span class="tag">Error</span><p>Creative language could be mistaken for literal physical data, including a stress test where a symbolic poem produced a hallucinated setting.</p></div>
+            <div><span class="tag fix">Fix</span><p>Genre Discernment Parameters make the system classify source material before extraction, separating themes and motifs from raw facts.</p></div>
+          </div>
+        </article>
+
+        <article class="trial-card">
+          <div class="trial-top">
+            <span class="trial-label">Trial 3</span>
+            <h3>Tokenization Blindspots</h3>
+          </div>
+          <div class="trial-body">
+            <div><span class="tag">Error</span><p>The tutor struggled with deterministic word-level operations such as identifying the seventh word in a sentence.</p></div>
+            <div><span class="tag fix">Fix</span><p>A Literal Anchor and Internal Scratchpad rule requires sequential indexing for high-resolution atomic tasks before answering.</p></div>
+          </div>
+        </article>
+
+        <article class="trial-card">
+          <div class="trial-top">
+            <span class="trial-label">Trial 4</span>
+            <h3>Heuristic Drift</h3>
+          </div>
+          <div class="trial-body">
+            <div><span class="tag">Error</span><p>The ledger clerk over-paraphrased learning history into stylized interpretations instead of strict technical records.</p></div>
+            <div><span class="tag fix">Fix</span><p>The Clerk Protocol decouples inference from fact and restricts the ledger to raw metadata, exact variables, and explicit keywords.</p></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="screenshots" class="showcase" aria-labelledby="screenshots-title">
+      <div class="shell">
+        <div class="section-head">
+          <p class="kicker">Visual proof space</p>
+          <h2 id="screenshots-title">Ready for screenshots when the offline tutor is captured.</h2>
+          <p class="lead">These frames are intentionally reserved for future evidence of the interface: vault selection, tutoring interaction, and mastery tracking. Replace the placeholders with actual screenshots when they are available.</p>
+        </div>
+
+        <div class="screenshots">
+          <article class="shot-card">
+            <div class="shot-frame">
+              <div class="placeholder">Primary screenshot slot: offline tutor interface</div>
+            </div>
+            <div class="shot-copy">
+              <h3>Instructional Tutor</h3>
+              <p>Use this frame for a main view showing how students interact with the source-grounded tutor.</p>
+            </div>
+          </article>
+
+          <div class="stacked-shots">
+            <article class="shot-card small">
+              <div class="shot-frame">
+                <div class="placeholder">Vault selection screenshot</div>
+              </div>
+              <div class="shot-copy">
+                <h3>Knowledge Vault</h3>
+                <p>A future place to show manual file selection across text or PDF assets.</p>
+              </div>
+            </article>
+
+            <article class="shot-card small">
+              <div class="shot-frame">
+                <div class="placeholder">Mastery ledger screenshot</div>
+              </div>
+              <div class="shot-copy">
+                <h3>Ghist Ledger</h3>
+                <p>A future place to show persistent learning state and Mastery Star tracking.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="philosophy shell" aria-labelledby="philosophy-title">
+      <div class="quote-band">
+        <h2 id="philosophy-title">Why this project matters</h2>
+        <div>
+          <p>The BlackCode Initiative argues that lightweight, localized AI can support high-fidelity educational reasoning when it is governed by explicit verification rules. Its strongest idea is not simply that the tutor runs offline; it is that student data sovereignty, environmental restraint, and rigorous instructional scaffolding can be designed as one system.</p>
+          <a class="button primary" href="https://mamadoubbah.github.io/">Return to portfolio</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="shell">
+      <span>The BlackCode Initiative | Portfolio case study</span>
+      <a href="#page-title">Back to top</a>
+    </div>
+  </footer>
+
+  <script>
+    const cards = document.querySelectorAll('.feature-card, .trial-card, .flow-step, .shot-card');
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          entry.target.animate(
+            [
+              { opacity: 0, transform: 'translateY(16px)' },
+              { opacity: 1, transform: 'translateY(0)' }
+            ],
+            { duration: 520, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'both' }
+          );
+          observer.unobserve(entry.target);
+        }
+      }
+    }, { threshold: 0.18 });
+
+    cards.forEach((card) => observer.observe(card));
+  </script>
+</body>
+</html>
+
